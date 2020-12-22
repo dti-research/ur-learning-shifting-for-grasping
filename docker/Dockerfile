@@ -21,19 +21,31 @@ WORKDIR /code
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
         iproute2 \
 		iputils-ping \
 		mlocate \
 		nano \
         net-tools \
+        wget \
         python3-dev \
         python3-pip \
         python3-empy \
 		python3-setuptools \
-        wget \
 		build-essential \
-        gnupg2
+        gnupg2 \
+        software-properties-common
+
+## Install Python 3.7
+#RUN apt-get update && add-apt-repository ppa:deadsnakes/ppa && \
+#    apt-get install -y --no-install-recommends \
+#        python3.7 \
+#        python3-pip \
+#        python3-empy \
+#		python3-setuptools && \
+#    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
+
 
 RUN pip3 install "pybind11[global]" --upgrade pip
 
@@ -41,7 +53,7 @@ RUN pip install matplotlib \
 	opencv-python \
 	pyrealsense2
 
-#RUN pip install --upgrade tensorflow
+#RUN pip install --upgrade tensorflow==2.4.0
 
 #####################
 # Intel RealSense 2 #
