@@ -1,6 +1,6 @@
 # Reproducible Robot Learning of Shifting Objects for Grasping in Cluttered Environments with UR and Intel RealSense
 
-This repository contains a *replication* of the paper *Robot Learning of Shifting Objects for Grasping in Cluttered Environments* presented at IROS 2019 in Macau. All dependencies are contained in a Docker image available from Docker Hub: [dtiresearch/ur-learning-shifting-for-grasping](https://hub.docker.com/repository/docker/dtiresearch/ur-learning-shifting-for-grasping) to allow for easy reproduction.
+This repository contains a *replication* of the paper [Robot Learning of Shifting Objects for Grasping in Cluttered Environments](https://arxiv.org/abs/1907.11035) presented at IROS 2019 in Macau. All dependencies are contained in a Docker image available from Docker Hub: [dtiresearch/ur-learning-shifting-for-grasping](https://hub.docker.com/repository/docker/dtiresearch/ur-learning-shifting-for-grasping) to allow for easy reproduction.
 
 <div align="center">
   <img width="500" src="https://raw.githubusercontent.com/dti-research/ur-learning-shifting-for-grasping/master/resources/IMG_0088.jpeg?token=AL2CCR6RZDUMD2IMCQ2ILSK74HBQW">
