@@ -7,7 +7,7 @@ This repository contains a *replication* of the paper [Robot Learning of Shiftin
   <img height="300" src="https://raw.githubusercontent.com/dti-research/ur-learning-shifting-for-grasping/master/resources/IMG_0092.jpeg?token=AL2CCR6RZDUMD2IMCQ2ILSK74HBQW">
 </div>
 
-In contrast to the original approach we implement the program flow inside the Universal Robot's Polyscope, which is their programming interface for integrators on the teach pendant (TP). Thus allowing for a higher degree of maintainability and ease of use for non-experts within reinforcement learning (RL). In addition to the robot we have a compute box (running Ubuntu 20.04 with Docker 19.03.14, build 5eb3275d40) which is connected to the UR5 (e-series) through TCP/IP and the Intel RealSense (D435) camera through USB3.1 gen 2.
+In contrast to the original approach we implement the program flow inside the Universal Robot's Polyscope. Thus allowing for a higher degree of maintainability and ease of use for non-experts within Python/C++ and reinforcement learning (RL). In addition to the robot we have a compute box (running Ubuntu 20.04 with Docker 19.03.14, build 5eb3275d40) which is connected to (1) the UR5 (e-series) through TCP/IP and (2) the Intel RealSense (D435) camera through USB3.1 gen 2.
 
 
 
