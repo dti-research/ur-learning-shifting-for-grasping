@@ -4,7 +4,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 # 
-# Original author: Nicolai Anton Lynnerup <nily@dti.dk>
+# Author: Nicolai Anton Lynnerup <nily@dti.dk>
 
 # TODO:
 # [ ] Read all camera parameters
