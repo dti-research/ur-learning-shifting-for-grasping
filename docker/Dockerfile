@@ -1,10 +1,10 @@
-# Copyright (c) 2020, Danish Technological Institute.
+# Copyright (c) 2021, Danish Technological Institute.
 # All rights reserved.
 #
-# This source code is licensed under the GNU-style license found in the
+# This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 # 
-# Original author: Nicolai Anton Lynnerup <nily@dti.dk>
+# Author: Nicolai Anton Lynnerup <nily@dti.dk>
 
 FROM ubuntu:18.04
 
@@ -51,6 +51,7 @@ RUN pip3 install "pybind11[global]" --upgrade pip
 
 RUN pip install matplotlib \
 	opencv-python \
+	imageio \
 	pyrealsense2
 
 #RUN pip install --upgrade tensorflow==2.4.0
