@@ -21,7 +21,6 @@ WORKDIR /code
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-
 RUN apt-get update && apt-get install -y --no-install-recommends \
         iproute2 \
 		iputils-ping \
@@ -37,24 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gnupg2 \
         software-properties-common
 
-## Install Python 3.7
-#RUN apt-get update && add-apt-repository ppa:deadsnakes/ppa && \
-#    apt-get install -y --no-install-recommends \
-#        python3.7 \
-#        python3-pip \
-#        python3-empy \
-#		python3-setuptools && \
-#    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
-
-
-RUN pip3 install "pybind11[global]" --upgrade pip
-
-RUN pip install matplotlib \
-	opencv-python \
-	imageio \
-	pyrealsense2
-
-#RUN pip install --upgrade tensorflow==2.4.0
+RUN pip3 install --upgrade pip
 
 #####################
 # Intel RealSense 2 #
@@ -76,3 +58,15 @@ RUN apt-get update \
 	librealsense2-dbg \
 	# Upgrade the local packages 
 	&& apt-get update && apt-get --only-upgrade install -y librealsense2-utils librealsense2-dkms
+
+RUN pip install pyrealsense2 
+
+################
+# pip packages #
+################
+
+RUN pip install matplotlib \
+	opencv-python \
+	imageio
+
+RUN pip install --upgrade tensorflow==2.4.0
