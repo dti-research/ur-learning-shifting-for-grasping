@@ -1,10 +1,10 @@
 #!/bin/sh
-# 
+#
 # file   urmagic_upload_programs.sh
 # author Anders Dubgaard <and@universal-robots.com>
-#  
+#
 # Script to upload programs to robot from USB stick
-# 
+#
 
 LOGGER="/usr/bin/logger"
 TAG="-t '$(basename $0)'"
