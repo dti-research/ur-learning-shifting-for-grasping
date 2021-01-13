@@ -1,0 +1,19 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.1.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+    exclude: 'setup.cfg' # because of https://github.com/c4urself/bump2version/issues/58
+  - id: check-json
+  - id: check-xml
+  - id: check-yaml
+  - id: check-added-large-files
+  - id: check-executables-have-shebangs
+    exclude: ^cad-models/
+
+- repo: https://github.com/Lucas-C/pre-commit-hooks
+  rev: v1.1.6
+  hooks:
+  - id: remove-crlf
+  - id: forbid-tabs
