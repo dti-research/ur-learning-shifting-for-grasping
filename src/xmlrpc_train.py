@@ -41,7 +41,11 @@ class TrainProxy():
         print("test")
         return 4
 
-# Create server
+    # TODO: Add methods to make the needed data conversions and function calls to the Train class
+
+
+
+# Create XML-RPC server
 with SimpleXMLRPCServer((args.ip, args.port),
                         requestHandler=RequestHandler,
                         allow_none=True) as server:
