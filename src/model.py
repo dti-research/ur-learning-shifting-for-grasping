@@ -16,9 +16,6 @@ class Model:
         Substate, s', creation is done by a sliding window
         w/ kernel (32 x 32), stride (2 x 2)
 
-        Activation Function:        Leaky ReLu=0.2
-        Bias + Kernel Regularizer:  L2=0.1
-
         Model:
         In: 32 x 32 x 1
         L1: kernel (5 x 5), stride (2 x 2), BN + dropout (0.4), Leaky ReLu=0.2, Reg=0.2  = 14 x 14 x  32
