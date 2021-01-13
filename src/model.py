@@ -18,12 +18,17 @@ class Model:
 
         Model:
         In: 32 x 32 x 1
-        L1: kernel (5 x 5), stride (2 x 2), BN + dropout (0.4), Leaky ReLu=0.2, Reg=0.2  = 14 x 14 x  32
-        L2: kernel (5 x 5), stride (1 x 1), BN + dropout (0.4), Leaky ReLu=0.2, Reg=0.2  = 10 x 10 x  48
-        L3: kernel (5 x 5), stride (1 x 1), BN + dropout (0.3), Leaky ReLu=0.2, Reg=0.2  =  6 x  6 x  64
-        L4: kernel (6 x 6), stride (1 x 1), BN + dropout (0.3), Leaky ReLu=0.2, Reg=0.2  =  1 x  1 x 142
-        L5: kernel (1 x 1), stride (1 x 1), BN + dropout (0.3), Leaky ReLu=0.2, Reg=0.2  =  1 x  1 x 128
-        L6: kernel (1 x 1), stride (1 x 1),                     Sigmoid,        Reg=0.05 =  1 x  1 x  |M|
+
+        Conv2D Layers:
+
+            Kernel    Stride    BN     Dropout   Activation       Bias Reg   Kernel Reg   Output
+        L1: (5 x 5)   (2 x 2)   True   0.4       Leaky ReLu=0.2   L2=0.1     L2=0.1       14 x 14 x  32
+        L2: (5 x 5)   (1 x 1)   True   0.4       Leaky ReLu=0.2   L2=0.1     L2=0.1       10 x 10 x  48
+        L3: (5 x 5)   (1 x 1)   True   0.3       Leaky ReLu=0.2   L2=0.1     L2=0.1        6 x  6 x  64
+        L4: (6 x 6)   (1 x 1)   True   0.3       Leaky ReLu=0.2   L2=0.1     L2=0.1        1 x  1 x 142
+        L5: (1 x 1)   (1 x 1)   True   0.3       Leaky ReLu=0.2   L2=0.1     L2=0.1        1 x  1 x 128
+        L6: (1 x 1)   (1 x 1)   -      -         Sigmoid          L2=0.05    -             1 x  1 x  |M|
+        
         Out: 1 x 1 x |M|
         """
 
