@@ -3,7 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-# 
+#
 # Author: Nicolai Anton Lynnerup <nily@dti.dk>
 
 # TODO:
@@ -20,7 +20,7 @@ class Model:
     def __init__(self, x, output, training):
         """
         Image size: 110 x 110 x 1 (ROI cut from 640x480 orthographic image)
-        
+
         Substate, s', creation is done by a sliding window
         w/ kernel (32 x 32), stride (2 x 2)
 
@@ -36,7 +36,7 @@ class Model:
         L4: (6 x 6)   (1 x 1)   142       True   0.3       Leaky ReLu=0.2   L2=0.1     L2=0.1        1 x  1 x 142
         L5: (1 x 1)   (1 x 1)   128       True   0.3       Leaky ReLu=0.2   L2=0.1     L2=0.1        1 x  1 x 128
         L6: (1 x 1)   (1 x 1)   |M|       False  -         Sigmoid          L2=0.05    -             1 x  1 x  |M|
-        
+
         Out: 1 x 1 x |M|
         """
         M = output
@@ -56,7 +56,7 @@ class Model:
         # TODO: Insert the layers above into a Keras Model() instance
 
         return
-    
+
     def _Conv2D(self,
                x,
                filters,
@@ -93,7 +93,7 @@ class Model:
             padding=padding,
             dilation_rate=dilation_rate,
             bias_regularizer=tf.keras.regularizers.l2(l2),
-            kernel_regularizer=tf.keras.regularizers.l2(l2) 
+            kernel_regularizer=tf.keras.regularizers.l2(l2)
         )(x)
         x = tf.keras.layers.LeakyReLU(alpha=alpha)(x)
         x = tf.keras.layers.BatchNormalization()(x)

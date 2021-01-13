@@ -3,7 +3,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
-# 
+#
 # Author: Nicolai Anton Lynnerup <nily@dti.dk>
 
 from train.train import Train
@@ -36,7 +36,7 @@ class TrainProxy():
     def __init__(self):
         # Create instance of main train class
         self.train = Train()
-    
+
     def test(self):
         print("test")
         return 4
