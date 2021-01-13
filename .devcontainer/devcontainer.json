@@ -4,7 +4,8 @@
     "context": "../",
     "dockerFile": "../docker/Dockerfile",
     "extensions": [
-        "ms-python.python"
+        "ms-python.python",
+        "njpwerner.autodocstring"
     ],
     "runArgs": [
         // This will allow you to use a ptrace-based debugger like C++, Go, and Rust.
