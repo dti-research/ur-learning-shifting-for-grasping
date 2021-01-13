@@ -19,4 +19,7 @@ class Train():
     def run(self):
         """
         AdamOptimizer
+
+        Learning rate = ?
+        Epochs = 5000
         """
