@@ -2,9 +2,9 @@
    Robot Program
      EGH Grip
      Wait: 1.5
-     If EGH_is_success()≟ True  and EGH_is_endstop()≠ True 
-       EGH Color Light band 
-       return True 
+     If EGH_is_success()≟ True  and EGH_is_endstop()≠ True
+       EGH Color Light band
+       return True
      Else
-       EGH Color Light band 
-       return  False 
+       EGH Color Light band
+       return  False
