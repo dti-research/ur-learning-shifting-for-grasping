@@ -1,0 +1,23 @@
+ Program
+   BeforeStart
+     Call EGH80_connect
+   Robot Program
+     EGH Release
+     is_gripped≔EGH80_grip()
+   EGH80_connect
+     EGH.set_Ip("192.168.1.253")
+     EGH.connect( True )
+     EGH Color Light band 
+     EGH Acknowledge
+     EGH Reference
+     EGH Acknowledge
+     EGH Color Light band 
+   EGH80_grip
+     EGH Grip
+     Wait: 1.5
+     If EGH_is_success()≟ True  and EGH_is_endstop()≠ True 
+       EGH Color Light band 
+       return True 
+     Else
+       EGH Color Light band 
+       return  False 

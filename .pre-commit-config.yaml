@@ -3,6 +3,7 @@ repos:
   rev: v2.1.0
   hooks:
   - id: trailing-whitespace
+    exclude: ^ur/
   - id: end-of-file-fixer
     exclude: 'setup.cfg' # because of https://github.com/c4urself/bump2version/issues/58
   - id: check-json
@@ -16,4 +17,5 @@ repos:
   rev: v1.1.6
   hooks:
   - id: remove-crlf
+    exclude: ^ur/
   - id: forbid-tabs
