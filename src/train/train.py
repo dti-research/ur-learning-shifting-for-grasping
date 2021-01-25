@@ -18,8 +18,18 @@ class Train():
 
     def run(self):
         """
-        AdamOptimizer
 
-        Learning rate = ?
-        Epochs = 5000
+        Change bin if 12 grasp attempts fails in a row
+
+        Hyperparameters:
+
+                        Parameter:          Value:      Notes:
+        Manipulator:    Image distance      0.35m       Distance to workplane when taking image(?)
+                        Approach distance   0.12m
+                        Grasp Z offset      0.015m
+                        Gripper force       20N
+        Learning:       Optimizer           Adam
+                        - Initial LR        1e-4
+                        Epochs              5000
+
         """
