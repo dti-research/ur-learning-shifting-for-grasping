@@ -14,7 +14,7 @@ In contrast to the original approach we implement the program flow inside the Un
 ## Hardware
 
 - Universal Robots&trade; [UR5 e-series](https://www.universal-robots.com/products/ur5-robot/) ([SW 5.9.1.1031110](https://s3-eu-west-1.amazonaws.com/ur-support-site/88180/update-5.9.1.1031110.urup))
-- ROBOTIQ&trade; [Hand-E](https://robotiq.com/products/hand-e-adaptive-robot-gripper) Adaptive Gripper ([GD1-1.3.16](https://assets.robotiq.com/website-assets/support_documents/document/Update_20Firmware_20Hand-E_20190916.zip?_ga=2.47184997.337818148.1608549310-377652996.1608549310))
+- Schunk&reg; [EGH80](https://schunk.com/dk_en/gripping-systems/series/egh/) Gripper
 - Intel&reg; RealSense&trade; [D435](https://www.intelrealsense.com/depth-camera-d435/) Depth Camera
 
 ### Models
@@ -26,7 +26,8 @@ In contrast to the original approach we implement the program flow inside the Un
 
 ### Installation on UR Controller
 
-- Install the ROBOTIQ URCap ([UCG-1.8.6](https://robotiq.com/support/hand-e-adaptive-robot-gripper/)) on the UR5
+- Install the Schunk EGH URCap ([v.1.0.1](https://schunk.com/fileadmin/pim/docs/DC0001538.ZIP)) on the UR5
+- Install the DTI UR Libraries URCap ([v.0.3.0](https://github.com/dti-research/ur-learning-shifting-for-grasping/blob/master/ur/urcaps/dtiurlibs-0.3.0.urcap?raw=true))
 - Copy the content of the [ur/](ur/) folder in this repo onto an empty USB. Insert the USB in the robot's TP and the files will automatically be copied to the controller ready to be run.
 
 ### Installation on Compute Box
