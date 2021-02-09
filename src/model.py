@@ -57,6 +57,8 @@ class Model:
 
         tf.keras.layers.Reshape
 
+        # Blazej pick up training
+
         # TODO: Insert the layers above into a Keras Model() instance
 
         return
