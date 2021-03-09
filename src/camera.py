@@ -223,6 +223,10 @@ if __name__ == "__main__":
     camera = IntelRealSense()
     camera.save_all_parameters('../data')
 
+    camera.get_color_sensor().set_option(rs.option.frames_queue_size, 2)
+    camera.get_depth_sensor().set_option(rs.option.frames_queue_size, 2)
+    print(camera.get_options())
+
     frames = camera.get_frames()
     print(frames.get_profile().as_video_stream_profile().get_intrinsics())
     rgb = frames.get_color_frame()
