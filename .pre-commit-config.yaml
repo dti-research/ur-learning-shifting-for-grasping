@@ -18,5 +18,5 @@ repos:
   rev: v1.1.6
   hooks:
   - id: remove-crlf
-    exclude: ^ur/
+    exclude: ^ur/ ^cad-models/
   - id: forbid-tabs
