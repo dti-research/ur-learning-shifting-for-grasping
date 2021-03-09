@@ -3,14 +3,14 @@ repos:
   rev: v2.1.0
   hooks:
   - id: trailing-whitespace
-    exclude: ^ur/
+    exclude: ^ur/ ^cad-models/
   - id: end-of-file-fixer
     exclude: 'setup.cfg' # because of https://github.com/c4urself/bump2version/issues/58
   - id: check-json
   - id: check-xml
   - id: check-yaml
   - id: check-added-large-files
-    exclude: (^resources/|^ur/urcaps/)
+    exclude: (^resources/|^ur/urcaps/|^cad-models/)
   - id: check-executables-have-shebangs
     exclude: ^cad-models/
 
