@@ -1,23 +1,69 @@
  Program
+   Init Variables
    BeforeStart
-     Call EGH80_connect
+     Call URCancelManualMove
+     'Call InitGripper'
+     MoveJ
+       HomeWP
    Robot Program
-     EGH Release
-     is_gripped≔EGH80_grip()
-   EGH80_connect
-     EGH.set_Ip("192.168.1.253")
-     EGH.connect( True )
-     EGH Color Light band
-     EGH Acknowledge
-     EGH Reference
-     EGH Acknowledge
-     EGH Color Light band
-   EGH80_grip
-     EGH Grip
-     Wait: 1.5
-     If EGH_is_success()≟ True  and EGH_is_endstop()≠ True
-       EGH Color Light band
-       return True
+     MoveJ
+       cam_bin1
+     GripperWidth≔0
+     Call SetGripperWidth
+     Call MoveToApproach
+     Call MoveToGrasp
+     EGI Outside grip
+     If egiGripped()
+       Call MoveToSafety
+       MoveJ
+         cam_bin2
+       EGI Release work piece
      Else
-       EGH Color Light band
-       return  False
+       GripperWidth≔1
+       Call SetGripperWidth
+       MoveJ
+         cam_bin1
+     'Call MoveToSafety'
+   URCancelManualMove
+     here≔get_actual_tcp_pose()
+     MoveJ
+       here
+   InitGripper
+     EGI Stop
+     EGI Acknowledge error
+     EGI Reference
+     EGI Position
+     EGI Position
+   SetGripperWidth
+     If GripperWidth≟-1
+       '0 mm'
+       EGI Position
+     ElseIf GripperWidth≟0
+       '40 mm'
+       EGI Position
+     ElseIf GripperWidth≟1
+       '70 mm'
+       EGI Position
+     ElseIf GripperWidth≟2
+       '86 mm'
+       EGI Position
+     Else
+       Popup: Gripper width could not be determined (from: SetGripperWidth())
+   MoveToApproach
+     Approach≔p_rel(get_actual_tcp_pose(), p[.01,-.05,.02,0,0,.35])
+     MoveJ
+       Approach
+   MoveToGrasp
+     zero_ftsensor()
+     If get_tcp_force_1d(2) ≤ 5
+       MoveL
+         Waypoint_1
+     Retract≔p_rel_z(get_actual_tcp_pose(), -0.001)
+     MoveL
+       Retract
+     reached_point≔ False
+   MoveToSafety
+     'Moves 10cm upwards'
+     Up≔p_rel_z(get_actual_tcp_pose(), -0.10)
+     MoveJ
+       Up

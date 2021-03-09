@@ -1,0 +1,24 @@
+ Program
+   BeforeStart
+     'recorder≔rpc_factory("xmlrpc", "http://192.168.1.119:10000")'
+   Robot Program
+     Loop 24 times
+       Pallet_1
+         Patterns
+           Grid_Pattern_1
+             CornerItem_1
+             CornerItem_2
+             CornerItem_3
+             CornerItem_4
+         Layers
+         At Each Item
+           Generated Movements
+             MoveJ
+               Approach
+             MoveL
+               ToolActionPoint
+             Tool action
+               Wait: 1.0
+             MoveL
+               Exit_1
+   'send_pose'
