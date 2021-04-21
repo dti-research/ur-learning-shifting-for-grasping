@@ -16,7 +16,7 @@ class Action:
                  bin: Bin,
                  pose: ActionPose,
                  method: SelectionMethod,
-                 image # TODO: Make to CV2.mat
+                 image
                  ):
         self.type = action
         self.bin = bin

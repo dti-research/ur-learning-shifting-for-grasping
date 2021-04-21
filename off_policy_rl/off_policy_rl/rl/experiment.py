@@ -20,6 +20,7 @@ from off_policy_rl.utils.camera import IntelRealSense
 from off_policy_rl.utils.epoch import Epoch
 from off_policy_rl.utils.loader import Loader
 from off_policy_rl.utils.selection_method import SelectionMethod
+from off_policy_rl.utils.saver import Saver
 
 import cv2
 import pyrealsense2.pyrealsense2 as rs
@@ -51,6 +52,7 @@ class Experiment():
         self.camera = IntelRealSense()
         self.verbose = verbose
         self.environment = Environment(Config.Bins)
+        self.saver = Saver(Config.data_folder)
         #self.model: Model = Loader.get_model("")
         # history =
 
@@ -61,8 +63,8 @@ class Experiment():
         method = self.get_selection_method(epoch)
         bin_coordinates = Config.get_bin_coordinates(clearance=50.0) # mm
 
-        frame = self.camera.get_frames()
-        input_images = self.get_images(frame)
+        rgd, depth = self.camera.get_rectified_rgb_image_and_depth()
+        input_images = rgd, depth #self.get_images(frame)
 
         if method == SelectionMethod.Random:
             pose = ActionPose(

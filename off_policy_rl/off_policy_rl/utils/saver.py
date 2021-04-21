@@ -1,6 +1,14 @@
+import os
+from enum import Enum
+
+import numpy as np
+
+from off_policy_rl.utils.types import ActionPose, Pose
+
 class Saver:
     def __init__(self, path):
         self.path = path
+        self.experiment_path = os.join(self.path, )
 
     def save_image(self):
         raise NotImplementedError()
@@ -16,8 +24,8 @@ class Saver:
             return float(x)
         if isinstance(x, Enum):
             return x.name
-        if isinstance(x, RobotPose):
-            return {'x': x.x, 'y': x.y, 'z': x.z, 'a': x.a, 'b': x.b, 'c': x.c, 'd': x.d}
-        if isinstance(x, Affine):
-            return {'x': x.x, 'y': x.y, 'z': x.z, 'a': x.a, 'b': x.b, 'c': x.c}
+        if isinstance(x, Pose):
+            return {'x': x.x, 'y': x.y, 'z': x.z, 'rx': x.rx, 'ry': x.ry, 'rz': x.rz}
+        if isinstance(x, ActionPose):
+            return {'x': x.x, 'y': x.y, 'rz': x.rz, 'd': x.d}
         return x.__dict__
