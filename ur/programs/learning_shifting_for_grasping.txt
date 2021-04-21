@@ -2,28 +2,49 @@
    Init Variables
    BeforeStart
      Call URCancelManualMove
-     'Call InitGripper'
      MoveJ
        HomeWP
+     Call InitGripper
    Robot Program
+     XML-RPC Call
+       number_epochs≔experiment.get_number_epochs()
+     total_episodes≔0
+     epoch≔0
+     Loop epoch < number_epochs
+       XML-RPC Call
+         number_episodes≔experiment.get_number_episodes_in_epoch(epoch)
+       episode≔0
+       Loop episode < number_episodes
+         XML-RPC Call
+           f≔experiment.get_current_bin_frame()
+         CurrentBin≔p[f[0]/1000, f[1]/1000, f[2]/1000, f[3], f[4], f[5]]
+         CurrentBinCam≔pose_sub(CurrentBin, p[0.190443, 0.205676, -0.164465,0,0,0])
+         'MoveJ in script line as it enables seeding the numeric inverse kinematics solver'
+         movej(get_inverse_kin(CurrentBinCam, HomeWP_q), a=2.8, v=2.0)
+         XML-RPC Call
+           action≔experiment.infer(epoch, episode)
+         textmsg(action)
+         x≔action[0]
+         y≔action[1]
+         rz≔action[2]
+         d≔action[3]
+         Call SetGripperWidth
+         Call MoveToApproach
+         Call MoveAndGrasp
+         Call MoveToSafety
+         If egiGripped()
+           'MoveJ in script line as it enables seeding the numeric inverse kinematics solver'
+           'TODO: Change to the other bin.'
+           movej(get_inverse_kin(CurrentBinCam, HomeWP_q), a=2.8, v=2.0)
+           EGI Release work piece
+         Else
+           d≔1
+           Call SetGripperWidth
+         episode≔episode + 1
+         total_episodes≔total_episodes + 1
+       epoch≔epoch + 1
      MoveJ
-       cam_bin1
-     GripperWidth≔0
-     Call SetGripperWidth
-     Call MoveToApproach
-     Call MoveToGrasp
-     EGI Outside grip
-     If egiGripped()
-       Call MoveToSafety
-       MoveJ
-         cam_bin2
-       EGI Release work piece
-     Else
-       GripperWidth≔1
-       Call SetGripperWidth
-       MoveJ
-         cam_bin1
-     'Call MoveToSafety'
+       HomeWP
    URCancelManualMove
      here≔get_actual_tcp_pose()
      MoveJ
@@ -35,33 +56,35 @@
      EGI Position
      EGI Position
    SetGripperWidth
-     If GripperWidth≟-1
+     If d≟-1
        '0 mm'
        EGI Position
-     ElseIf GripperWidth≟0
+     ElseIf d≟0
        '40 mm'
        EGI Position
-     ElseIf GripperWidth≟1
+     ElseIf d≟1
        '70 mm'
        EGI Position
-     ElseIf GripperWidth≟2
+     ElseIf d≟2
        '86 mm'
        EGI Position
      Else
        Popup: Gripper width could not be determined (from: SetGripperWidth())
    MoveToApproach
-     Approach≔p_rel(get_actual_tcp_pose(), p[.01,-.05,.02,0,0,.35])
-     MoveJ
-       Approach
-   MoveToGrasp
+     Approach≔p_rel(CurrentBin,p[x/1000,y/1000,0,0,0,rz])
+     If get_inverse_kin_has_solution(Approach)
+       MoveJ
+         Approach
+     Else
+       Popup: Beyond safety limits
+   MoveAndGrasp
+     'Robot MUST be moved to approach point before this routine is called'
      zero_ftsensor()
-     If get_tcp_force_1d(2) ≤ 5
-       MoveL
-         Waypoint_1
-     Retract≔p_rel_z(get_actual_tcp_pose(), -0.001)
+     GraspPoint≔p_rel_z(get_actual_tcp_pose(), 100)
      MoveL
-       Retract
-     reached_point≔ False
+       GraspPoint
+         Until (tool_contact_detection)
+           EGI Outside grip
    MoveToSafety
      'Moves 10cm upwards'
      Up≔p_rel_z(get_actual_tcp_pose(), -0.10)

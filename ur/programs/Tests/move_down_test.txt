@@ -1,0 +1,11 @@
+ Program
+   Robot Program
+     MoveJ
+       cam_bin1
+     MoveJ
+       above_bin1
+     Call MoveDownUntilContact
+   MoveDownUntilContact
+     MoveL
+       Direction: base_plate Z-
+         Until (tool_contact_detection)

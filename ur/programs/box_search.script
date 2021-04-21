@@ -1,5 +1,5 @@
-def calibration():
-  set_tcp(p[0.0,0.0,0.2505,0.0,0.0,0.0])
+def box_search():
+  set_safety_mode_transition_hardness(1)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -7,32 +7,26 @@ def calibration():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  set_gravity([0.0, 0.0, 9.82])
-  set_safety_mode_transition_hardness(1)
+  set_target_payload(2.260000, [-0.011000, 0.004000, 0.073000], [0.005991, 0.005991, 0.005991, 0.000000, 0.000000, 0.000000])
   set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
   set_tool_output_mode(0)
   set_tool_digital_output_mode(0, 1)
   set_tool_digital_output_mode(1, 1)
   set_tool_voltage(0)
-  set_target_payload(2.260000, [-0.011000, 0.004000, 0.073000], [0.005991, 0.005991, 0.005991, 0.000000, 0.000000, 0.000000])
-  step_count_6879f789_91d0_4090_882a_a29b4706db19 = 0.0
-  thread Step_Counter_Thread_7dba8c81_5e1d_4557_99ad_9a459189569b():
+  set_tcp(p[0.0,0.0,0.2505,0.0,0.0,0.0])
+  step_count_c883c505_807b_43b2_8c64_c223614846b8 = 0.0
+  thread Step_Counter_Thread_13b1f17b_ce34_4d56_af8a_e0398f405579():
     while (True):
-      step_count_6879f789_91d0_4090_882a_a29b4706db19 = step_count_6879f789_91d0_4090_882a_a29b4706db19 + 1.0
+      step_count_c883c505_807b_43b2_8c64_c223614846b8 = step_count_c883c505_807b_43b2_8c64_c223614846b8 + 1.0
       sync()
     end
   end
-  run Step_Counter_Thread_7dba8c81_5e1d_4557_99ad_9a459189569b()
-  global Bin1=p[0.182829499211491,-0.31599183731772934,0.12098501050339178,2.2036803227058535,-2.2363193378226676,-0.00844733517379955]
-  global Bin2=p[-0.017098588478363107,-0.3118063131340838,0.1200303801430907,0.008134537013944126,0.004632074070180949,3.120787872374472]
-  global base_plate=p[0.36881237191148547,-0.6000691173989049,-0.0027197573347747805,-0.005825777676998524,-0.0028408219250887585,1.5707632180069593]
-  global cam_bin1=p[0.015246587324777763,-0.48632105149032473,0.1991416605260554,2.2238502978308787,-2.2151871723437186,-0.002876938519447563]
-  global cam_bin2=p[-0.18471565021029393,-0.48713770995455663,0.1998023730738432,2.223835378588522,-2.2152176892310154,-0.0028636673500633363]
-  global referencePoint=p[0.19136954769124842,-0.5541731161507419,0.1432757283294436,-2.322171278388158,-1.394433339776204,0.21506461065595087]
-  global separatorPoint=p[0.0,0.0,0.0,0.0,0.0,0.0]
+  run Step_Counter_Thread_13b1f17b_ce34_4d56_af8a_e0398f405579()
+  set_gravity([0.0, 0.0, 9.82])
+  global base_plate=p[0.37300367166245,-0.2795574524839015,-0.0038493076086024425,-0.005519360267162067,0.004050159517635235,3.1415146216674805]
   # begin: URCap Installation Node
-  #   Source: DTI UR Library, 0.3.0, Danish Technological Institute
-  #   Type: DTI UR Library
+  #   Source: DTI UR Helper, 1.0.3, Danish Technological Institute
+  #   Type: DTI UR Helper
   ############################################################################
   # Copyright (C) Danish Technological Institute - All Rights Reserved       #
   # Unauthorized copying of this file, via any medium is strictly prohibited #
@@ -94,10 +88,10 @@ def calibration():
   # note: utilizes the currently active TCP
   # note: while running, check the value of the "current_force_vector" variable to check your forces in the given reference pose
   # param p_target: traget pose in base frame
-  # param move_parameters: array [r, a, v] with
-  #                        r: blend radius for linear move in m
+  # param move_parameters: array [a, v, r] with
   #                        a: accleration for linear move in m/s^2
   #                        v: velocity for linear move in m/s
+  #                        r: blend radius for linear move in m
   # param max_forces: maximum allowed absolute force in N along the reference pose's x, y, and z axis as vector [Fx, Fy, Fz]
   # param ignore_dists: array of [start_dist, end_dist] ignore the force value within these distances from the
   #                     start and end point, respectively
@@ -221,6 +215,7 @@ def calibration():
   def p_rel_Rz(base_pose, delta):
     return p_rel_1D(base_pose, delta, 5)
   end
+  calibration = rpc_factory("xmlrpc", "http://192.168.1.100:8000/lsfg/calibration")
   # end: URCap Installation Node
   # begin: URCap Installation Node
   #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
@@ -445,102 +440,86 @@ def calibration():
   ### SCHUNK EGI XML-RPC CONTROL END ###
   ######################################
   # end: URCap Installation Node
-  global Pallet_1_cnt=1
-  global Pallet_1_lct=1
-  global Pallet_1_lno=1
-  global Pallet_1_sep= False
-  global Pallet_1_tct=1
-  global Approach_p=p[.191355444395, -.554183551484, .143300476085, -2.322175925222, -1.394478123840, .215141023042]
-  global Approach_q=[1.7235070438081452, -1.0246037599804794, 1.743263034028132, -1.9431657362188268, -1.8675038893445812, 2.2685891314648714]
-  global ToolActionPoint_p=p[.191369547691, -.554173116151, .143275728329, -2.322171278386, -1.394433339757, .215064610660]
-  global ToolActionPoint_q=[1.7235257758275806, -1.0245698260669949, 1.7432707729048467, -1.943148706201999, -1.8674543709182378, 2.268634689315798]
-  global Exit_1_p=p[.191371889685, -.554181977175, .143293670231, -2.322223024813, -1.394434539682, .215088848405]
-  global Exit_1_q=[1.7235266121634907, -1.024587653861758, 1.7432506018563778, -1.9431585381557301, -1.8674493717775942, 2.2686461260725697]
-  def send_pose():
-    $ 23 "send_pose" "noBreak"
-    $ 24 "Wait is_steady()"
-    while (not(is_steady())):
-      sync()
-    end
-    $ 25 "Wait: 0.5"
-    sleep(0.5)
-    $ 26 "handle≔recorder.add_sample(get_actual_tool_flange_pose())"
-    global handle=recorder.add_sample(get_actual_tool_flange_pose())
-    $ 27 "If handle≟-1"
-    if (handle == -1):
-      $ 28 "Popup: Image acquisition failed. Continue anyway?"
-      popup("Image acquisition failed. Continue anyway?", "Warning", True, False, blocking=True)
-    end
-  end
-  $ 1 "BeforeStart"
-  $ 2 "recorder≔rpc_factory('xmlrpc', 'http://192.168.1.119:10000')"
-  global recorder=rpc_factory("xmlrpc", "http://192.168.1.119:10000")
-  $ 3 "Robot Program"
-  $ 4 "Loop 24 times"
+  global starting_point_p=p[.182546650854, -.305824807849, .046754080254, -.013196091595, 3.094629198708, .023739192826]
+  global starting_point_q=[1.6732323169708252, -1.8718944988646449, 2.319922987614767, -2.007554670373434, -1.5198052565204065, 0.09537959098815918]
+  $ 1 "Robot Program"
+  $ 2 "box≔[[0,0],[0,0]]"
+  global box=[[0,0],[0,0]]
+  $ 3 "MoveL"
+  $ 4 "starting_point" "breakAfter"
+  movel(starting_point_p, a=1.2, v=0.25)
+  $ 5 "Loop 2 times"
   Loop_1 = 0
-  while (Loop_1 < 24):
-    $ 5 "Pallet_1"
-    def Pallet_1_trans(pose):
-    return p[pose[0], pose[1], pose[2], 0, 0, 0]
+  while (Loop_1 < 2):
+    $ 6 "axis≔Loop_1"
+    global axis=Loop_1
+    $ 7 "Loop 2 times"
+    Loop_2 = 0
+    while (Loop_2 < 2):
+      $ 8 "direction≔Loop_2 % 2"
+      global direction=Loop_2 % 2
+      $ 9 "If direction"
+      if (direction):
+        $ 10 "delta≔1"
+        global delta=1
+      else:
+        $ 11 "Else" "noBreak"
+        $ 12 "delta≔-1"
+        global delta=-1
+      end
+      $ 13 "box_border≔p_rel_1D(get_actual_tcp_pose(), delta, axis)"
+      global box_border= p_rel_1D ( get_actual_tcp_pose (), delta, axis)
+      $ 14 "MoveL"
+      $ 15 "box_border" "breakAfter"
+      global move_thread_flag_15=0
+      thread move_thread_15():
+        enter_critical
+        move_thread_flag_15 = 1
+        movel(box_border, a=0.3, v=0.05)
+        move_thread_flag_15 = 2
+        exit_critical
+      end
+      move_thread_flag_15 = 0
+      move_thread_han_15 = run move_thread_15()
+      while (True):
+        local targetTcpDirection=get_target_tcp_speed()
+        local stepsToRetract=tool_contact(direction=targetTcpDirection)
+        if (stepsToRetract > 0):
+          kill move_thread_han_15
+          stopl(1.5)
+          local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+          local contactPose=get_forward_kin(backTrackMovement)
+          local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+          local retractTo=contactPose
+          if (norm(posDir) > 1e-6):
+            local normalizedPosDir=normalize(posDir)
+            local additionalRetraction=p[normalizedPosDir[0] * 0.001, normalizedPosDir[1] * 0.001, normalizedPosDir[2] * 0.001, 0, 0, 0]
+            retractTo = pose_sub(contactPose, additionalRetraction)
+          end
+          movel(retractTo, a=1.5, v=0.1)
+          $ 16 "Until (tool_contact_detection)"
+          $ 17 "coordinate≔get_actual_tcp_pose()"
+          global coordinate= get_actual_tcp_pose ()
+          $ 18 "box[axis, direction] = coordinate[axis]"
+          box[axis, direction] = coordinate[axis]
+          break
+        end
+        sleep(1.0E-10)
+        if (move_thread_flag_15 > 1):
+          join move_thread_han_15
+          break
+        end
+        sync()
+      end
+      Loop_2 = Loop_2 + 1
+    end
+    Loop_1 = Loop_1 + 1
   end
-  def Pallet_1_rot(pose):
-  return p[0, 0, 0, pose[3], pose[4], pose[5]]
-  end
-  def Pallet_1_compute_pallet_waypoint(T_base_feature_taught, T_feature_referencePoint_taught, T_referencePoint_approach_taught, T_base_feature, T_base_referencePoint):
-  local trans_referencePoint_approach_in_feature_taught = pose_sub(Pallet_1_trans(pose_trans(T_feature_referencePoint_taught, T_referencePoint_approach_taught)), Pallet_1_trans(T_feature_referencePoint_taught))
-  local rot_referencePoint_approach_in_feature_taught = pose_trans(Pallet_1_rot(T_feature_referencePoint_taught), pose_trans(Pallet_1_rot(T_referencePoint_approach_taught), pose_inv(Pallet_1_rot(T_feature_referencePoint_taught))))
-  T_feature_referencePoint = pose_trans(pose_inv(T_base_feature), T_base_referencePoint)
-  rot_referencePoint_approach = pose_trans(pose_inv(Pallet_1_rot(T_feature_referencePoint)), pose_trans(rot_referencePoint_approach_in_feature_taught, Pallet_1_rot(T_feature_referencePoint)))
-  T_feature_approach = pose_trans(trans_referencePoint_approach_in_feature_taught, pose_trans(T_feature_referencePoint, rot_referencePoint_approach))
-  T_base_approach = pose_trans(T_base_feature, T_feature_approach)
-  return T_base_approach
-  end
-  Pallet_1_tct = 24
-  if (Pallet_1_cnt > 24 or Pallet_1_cnt < 1):
-    Pallet_1_cnt = 1
-  end
-  $ 6 "Patterns" "noBreak"
-  $ 7 "Grid_Pattern_1" "noBreak"
-  $ 12 "Layers" "noBreak"
-  if (Pallet_1_cnt < 25):
-    Pallet_1_lno = 1
-    Pallet_1_lct = Pallet_1_cnt
-    global CornerItem_1=pose_trans(p[0.0,0.0,0.0,0.0,0.0,0.0], pose_trans(p[-.000000000000, -.000000000000, -.000000000000, .000000000000, .000000000000, .000000000000], p[.237383709472, -.554157381802, .143269986650, -2.322094529335, -1.394480429874, .215085310857]))
-    global CornerItem_2=pose_trans(p[0.0,0.0,0.0,0.0,0.0,0.0], pose_trans(p[-.000000000000, -.000000000000, -.000000000000, .000000000000, .000000000000, .000000000000], p[.001843020215, -.579354446596, .166965743963, -2.546606860799, 1.010703623129, -.338422322630]))
-    global CornerItem_3=pose_trans(p[0.0,0.0,0.0,0.0,0.0,0.0], pose_trans(p[-.000000000000, -.000000000000, -.000000000000, .000000000000, .000000000000, .000000000000], p[-.026273882839, -.388712948414, .166985022346, -1.332318161450, 2.516823364876, -.587653010768]))
-    global CornerItem_4=pose_trans(p[0.0,0.0,0.0,0.0,0.0,0.0], pose_trans(p[-.000000000000, -.000000000000, -.000000000000, .000000000000, .000000000000, .000000000000], p[.230584591556, -.313273593558, .167011971320, -1.287453570883, -2.601300836696, .628756906990]))
-    Pallet_1_cnt_x = (Pallet_1_lct - 1) % 6
-    Pallet_1_cnt_y = floor((Pallet_1_lct - 1) / 6)
-    referencePoint = interpolate_pose(interpolate_pose(CornerItem_1, CornerItem_2, Pallet_1_cnt_x/5), interpolate_pose(CornerItem_4, CornerItem_3,Pallet_1_cnt_x/5), Pallet_1_cnt_y/3)
-    direction = p[0,0,1,0,0,0]
-    referencePoint = pose_add (referencePoint,p[0.0*direction[0],0.0*direction[1],0.0*direction[2],0,0,0])
-  end
-  Approach_p = Pallet_1_compute_pallet_waypoint(p[0.0,0.0,0.0,0.0,0.0,0.0], pose_trans(pose_inv(p[0.0,0.0,0.0,0.0,0.0,0.0]), p[0.19136954769124842,-0.5541731161507419,0.1432757283294436,-2.3221712783881574,-1.3944333397762037,0.21506461065595056]), p[-1.3892902284817765E-5,-1.7735708845278975E-5,-2.0314587024561348E-5,4.545809835630717E-7,-6.683239101790723E-5,-1.1448138291402983E-5], p[0.0,0.0,0.0,0.0,0.0,0.0], referencePoint)
-  Approach_p = pose_trans(p[0.19136954769124842,-0.5541731161507419,0.1432757283294436,-2.322171278388158,-1.394433339776204,0.21506461065595087], pose_trans(pose_inv(referencePoint), Approach_p))
-  ToolActionPoint_p = Pallet_1_compute_pallet_waypoint(p[0.0,0.0,0.0,0.0,0.0,0.0], pose_trans(pose_inv(p[0.0,0.0,0.0,0.0,0.0,0.0]), p[0.19136954769124842,-0.5541731161507419,0.1432757283294436,-2.3221712783881574,-1.3944333397762037,0.21506461065595056]), p[0.0,0.0,0.0,1.1313977532623195E-11,5.300898608950887E-12,1.0793189259006296E-11], p[0.0,0.0,0.0,0.0,0.0,0.0], referencePoint)
-  ToolActionPoint_p = pose_trans(p[0.19136954769124842,-0.5541731161507419,0.1432757283294436,-2.322171278388158,-1.394433339776204,0.21506461065595087], pose_trans(pose_inv(referencePoint), ToolActionPoint_p))
-  Exit_1_p = Pallet_1_compute_pallet_waypoint(p[0.0,0.0,0.0,0.0,0.0,0.0], pose_trans(pose_inv(p[0.0,0.0,0.0,0.0,0.0,0.0]), p[0.19136954769124842,-0.5541731161507419,0.1432757283294436,-2.3221712783881574,-1.3944333397762037,0.21506461065595056]), p[-5.109721440910153E-6,-2.205200149818509E-6,-1.936342771796662E-5,-3.306385915779932E-5,-3.223039059690461E-5,2.477079356059055E-5], p[0.0,0.0,0.0,0.0,0.0,0.0], referencePoint)
-  Exit_1_p = pose_trans(p[0.19136954769124842,-0.5541731161507419,0.1432757283294436,-2.322171278388158,-1.394433339776204,0.21506461065595087], pose_trans(pose_inv(referencePoint), Exit_1_p))
-  $ 13 "At Each Item" "noBreak"
-  $ 14 "Generated Movements" "noBreak"
-  $ 15 "MoveJ" "noBreak"
-  $ 16 "Approach" "noBreak"
-  movej(get_inverse_kin(pose_trans(referencePoint, pose_trans(p[.378095154710, -.318700164465, .346023611811, 2.322171278388, 1.394433339776, -.215064610656], Approach_p)), qnear=Approach_q), a=1.3962634015954636, v=1.0471975511965976)
-  $ 17 "MoveL" "noBreak"
-  $ 18 "ToolActionPoint" "noBreak"
-  movel(pose_trans(referencePoint, pose_trans(p[.378095154710, -.318700164465, .346023611811, 2.322171278388, 1.394433339776, -.215064610656], ToolActionPoint_p)), a=1.2, v=0.25)
-  $ 19 "Tool action" "noBreak"
-  $ 20 "Call send_pose" "noBreak"
-  send_pose()
-  $ 21 "MoveL" "noBreak"
-  $ 22 "Exit_1" "noBreak"
-  movel(pose_trans(referencePoint, pose_trans(p[.378095154710, -.318700164465, .346023611811, 2.322171278388, 1.394433339776, -.215064610656], Exit_1_p)), a=1.2, v=0.25)
-  Pallet_1_sep = False
-  if (Pallet_1_cnt >= 24):
-    Pallet_1_cnt = 1
-  else:
-    Pallet_1_cnt = Pallet_1_cnt + 1
-  end
-  Loop_1 = Loop_1 + 1
-  end
+  # begin: URCap Program Node
+  #   Source: DTI UR Helper, 1.0.3, Danish Technological Institute
+  #   Type: XML-RPC Call
+  $ 19 "XML-RPC Call"
+  $ 20 "succes≔calibration.set_box_coordinates(box[0,0], box[0,1], box[1,0], box[1,1])" "noBreak"
+  global succes=calibration. set_box_coordinates (box[0,0], box[0,1], box[1,0], box[1,1])
+  # end: URCap Program Node
 end

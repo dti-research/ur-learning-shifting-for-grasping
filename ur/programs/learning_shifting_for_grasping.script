@@ -1,21 +1,5 @@
 def learning_shifting_for_grasping():
-  step_count_afb79dd3_e3c7_4d6a_a99c_4a33c379e12f = 0.0
-  thread Step_Counter_Thread_3c6f3802_1ad3_454f_b8d9_ede866dfbb5a():
-    while (True):
-      step_count_afb79dd3_e3c7_4d6a_a99c_4a33c379e12f = step_count_afb79dd3_e3c7_4d6a_a99c_4a33c379e12f + 1.0
-      sync()
-    end
-  end
-  run Step_Counter_Thread_3c6f3802_1ad3_454f_b8d9_ede866dfbb5a()
-  set_gravity([0.0, 0.0, 9.82])
   set_tcp(p[0.0,0.0,0.2505,0.0,0.0,0.0])
-  set_payload(2.26, [-0.011, 0.004, 0.073])
-  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
-  set_tool_output_mode(0)
-  set_tool_digital_output_mode(0, 1)
-  set_tool_digital_output_mode(1, 1)
-  set_tool_voltage(0)
-  set_safety_mode_transition_hardness(1)
   set_standard_analog_input_domain(0, 1)
   set_standard_analog_input_domain(1, 1)
   set_tool_analog_input_domain(0, 1)
@@ -23,12 +7,26 @@ def learning_shifting_for_grasping():
   set_analog_outputdomain(0, 0)
   set_analog_outputdomain(1, 0)
   set_input_actions_to_default()
-  global base_plate=p[0.15414545881789887,-0.25641410985609525,-0.006387408816496076,-0.003796400099759381,0.0037355208581470144,3.1384000805600927]
-  global cam_bin1=p[0.015246587324777763,-0.48632105149032473,0.1991416605260554,2.2238502978308787,-2.2151871723437186,-0.002876938519447563]
-  global cam_bin2=p[-0.18471565021029393,-0.48713770995455663,0.1998023730738432,2.223835378588522,-2.2152176892310154,-0.0028636673500633363]
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_target_payload(2.260000, [-0.011000, 0.004000, 0.073000], [0.005991, 0.005991, 0.005991, 0.000000, 0.000000, 0.000000])
+  set_safety_mode_transition_hardness(1)
+  set_gravity([0.0, 0.0, 9.82])
+  step_count_0f598e92_b169_456a_a157_2532217498b8 = 0.0
+  thread Step_Counter_Thread_c06fd7e8_9f75_4f8f_bdb9_4464ec19e703():
+    while (True):
+      step_count_0f598e92_b169_456a_a157_2532217498b8 = step_count_0f598e92_b169_456a_a157_2532217498b8 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_c06fd7e8_9f75_4f8f_bdb9_4464ec19e703()
+  global base_plate=p[0.37300367166245,-0.2795574524839015,-0.0038493076086024425,-0.005519360267162067,0.004050159517635235,3.1415146216674805]
   # begin: URCap Installation Node
-  #   Source: DTI UR Library, 0.3.0, Danish Technological Institute
-  #   Type: DTI UR Library
+  #   Source: DTI UR Helper, 1.0.3, Danish Technological Institute
+  #   Type: DTI UR Helper
   ############################################################################
   # Copyright (C) Danish Technological Institute - All Rights Reserved       #
   # Unauthorized copying of this file, via any medium is strictly prohibited #
@@ -90,10 +88,10 @@ def learning_shifting_for_grasping():
   # note: utilizes the currently active TCP
   # note: while running, check the value of the "current_force_vector" variable to check your forces in the given reference pose
   # param p_target: traget pose in base frame
-  # param move_parameters: array [r, a, v] with
-  #                        r: blend radius for linear move in m
+  # param move_parameters: array [a, v, r] with
   #                        a: accleration for linear move in m/s^2
   #                        v: velocity for linear move in m/s
+  #                        r: blend radius for linear move in m
   # param max_forces: maximum allowed absolute force in N along the reference pose's x, y, and z axis as vector [Fx, Fy, Fz]
   # param ignore_dists: array of [start_dist, end_dist] ignore the force value within these distances from the
   #                     start and end point, respectively
@@ -217,6 +215,9 @@ def learning_shifting_for_grasping():
   def p_rel_Rz(base_pose, delta):
     return p_rel_1D(base_pose, delta, 5)
   end
+  calibration = rpc_factory("xmlrpc", "http://192.168.1.100:8000/lsfg/calibration")
+  train = rpc_factory("xmlrpc", "http://192.168.1.100:8000/lsfg/train")
+  experiment = rpc_factory("xmlrpc", "http://192.168.1.100:8000/lsfg/experiment")
   # end: URCap Installation Node
   # begin: URCap Installation Node
   #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
@@ -441,100 +442,97 @@ def learning_shifting_for_grasping():
   ### SCHUNK EGI XML-RPC CONTROL END ###
   ######################################
   # end: URCap Installation Node
-  global reached_point=  False
   global HomeWP_p=p[.132768718690, -.491631725724, .236294917659, .001813842110, -3.138402460840, .000773845282]
   global HomeWP_q=[1.5708707571029663, -1.5707022708705445, 1.5708273092852991, -1.570737437610962, -1.570864502583639, 4.0984153747558594E-4]
-  global Waypoint_1_p=p[.065148857340, -.496732508550, .035000000000, 1.802614683808, -2.565939009031, .002508489565]
-  global Waypoint_1_q=[1.4330141027059504, -1.4656377925807114, 1.9996546690136694, -2.1092269897947062, -1.571409541748201, -1.3598306933256215]
   def URCancelManualMove():
-    $ 26 "URCancelManualMove" "noBreak"
-    $ 27 "here≔get_actual_tcp_pose()"
+    $ 47 "URCancelManualMove" "noBreak"
+    $ 48 "here≔get_actual_tcp_pose()"
     global here= get_actual_tcp_pose ()
-    $ 28 "MoveJ"
-    $ 29 "here" "breakAfter"
+    $ 49 "MoveJ"
+    $ 50 "here" "breakAfter"
     movej(here, a=1.3962634015954636, v=1.0471975511965976)
   end
   def InitGripper():
-    $ 30 "InitGripper" "noBreak"
+    $ 51 "InitGripper" "noBreak"
     # begin: URCap Program Node
     #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
     #   Type: EGI Commands
-    $ 31 "EGI Stop"
+    $ 52 "EGI Stop"
     egiStop()
     # end: URCap Program Node
     # begin: URCap Program Node
     #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
     #   Type: EGI Commands
-    $ 32 "EGI Acknowledge error"
+    $ 53 "EGI Acknowledge error"
     egiAckError()
     # end: URCap Program Node
     # begin: URCap Program Node
     #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
     #   Type: EGI Commands
-    $ 33 "EGI Reference"
+    $ 54 "EGI Reference"
     egiReferencing(True)
     # end: URCap Program Node
     # begin: URCap Program Node
     #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
     #   Type: EGI Position
-    $ 34 "EGI Position"
+    $ 55 "EGI Position"
     egiPosMove(100.0,150.0,True)
     # end: URCap Program Node
     # begin: URCap Program Node
     #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
     #   Type: EGI Position
-    $ 35 "EGI Position"
+    $ 56 "EGI Position"
     egiPosMove(0.0,150.0,True)
     # end: URCap Program Node
   end
   def SetGripperWidth():
-    $ 36 "SetGripperWidth" "noBreak"
-    $ 37 "If GripperWidth≟-1"
-    if (GripperWidth == -1):
-      $ 38 "'0 mm'"
+    $ 57 "SetGripperWidth" "noBreak"
+    $ 58 "If d≟-1"
+    if (d == -1):
+      $ 59 "'0 mm'"
       # '0 mm'
       # begin: URCap Program Node
       #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
       #   Type: EGI Position
-      $ 39 "EGI Position"
+      $ 60 "EGI Position"
       egiPosMove(0.0,150.0,True)
       # end: URCap Program Node
     else:
-      $ 40 "ElseIf GripperWidth≟0"
-      if (GripperWidth == 0):
-        $ 41 "'40 mm'"
+      $ 61 "ElseIf d≟0"
+      if (d == 0):
+        $ 62 "'40 mm'"
         # '40 mm'
         # begin: URCap Program Node
         #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
         #   Type: EGI Position
-        $ 42 "EGI Position"
+        $ 63 "EGI Position"
         egiPosMove(40.0,150.0,False)
         # end: URCap Program Node
       else:
-        $ 43 "ElseIf GripperWidth≟1"
-        if (GripperWidth == 1):
-          $ 44 "'70 mm'"
+        $ 64 "ElseIf d≟1"
+        if (d == 1):
+          $ 65 "'70 mm'"
           # '70 mm'
           # begin: URCap Program Node
           #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
           #   Type: EGI Position
-          $ 45 "EGI Position"
+          $ 66 "EGI Position"
           egiPosMove(70.0,150.0,False)
           # end: URCap Program Node
         else:
-          $ 46 "ElseIf GripperWidth≟2"
-          if (GripperWidth == 2):
-            $ 47 "'86 mm'"
+          $ 67 "ElseIf d≟2"
+          if (d == 2):
+            $ 68 "'86 mm'"
             # '86 mm'
             # begin: URCap Program Node
             #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
             #   Type: EGI Position
-            $ 48 "EGI Position"
+            $ 69 "EGI Position"
             egiPosMove(86.0,150.0,False)
             # end: URCap Program Node
           else:
-            $ 49 "Else" "noBreak"
-            $ 50 "Popup: Gripper width could not be determined (from: SetGripperWidth())"
+            $ 70 "Else" "noBreak"
+            $ 71 "Popup: Gripper width could not be determined (from: SetGripperWidth())"
             popup("Gripper width could not be determined (from: SetGripperWidth())", "Error", False, True, blocking=True)
           end
         end
@@ -542,105 +540,188 @@ def learning_shifting_for_grasping():
     end
   end
   def MoveToApproach():
-    $ 51 "MoveToApproach" "noBreak"
-    $ 52 "Approach≔p_rel(get_actual_tcp_pose(), p[.01,-.05,.02,0,0,.35])"
-    global Approach= p_rel ( get_actual_tcp_pose (), p[.01,-.05,.02,0,0,.35])
-    $ 53 "MoveJ"
-    $ 54 "Approach" "breakAfter"
-    movej(Approach, a=1.3962634015954636, v=1.0471975511965976)
-  end
-  def MoveToGrasp():
-    $ 55 "MoveToGrasp" "noBreak"
-    $ 56 "zero_ftsensor()"
-    zero_ftsensor()
-    $ 57 "If get_tcp_force_1d(2) ≤ 5"
-    global thread_flag_57=0
-    thread Thread_if_57():
-      $ 58 "MoveL"
-      $ 59 "Waypoint_1" "breakAfter"
-      movel(Waypoint_1_p, a=0.3, v=0.075)
-      thread_flag_57 = 1
-    end
-    if ( get_tcp_force_1d (2)  <=  5):
-      global thread_handler_57=run Thread_if_57()
-      while (thread_flag_57 == 0):
-        if not( get_tcp_force_1d (2)  <=  5):
-          kill thread_handler_57
-          thread_flag_57 = 2
-        else:
-          sync()
-        end
-      end
+    $ 72 "MoveToApproach" "noBreak"
+    $ 73 "Approach≔p_rel(CurrentBin,p[x/1000,y/1000,0,0,0,rz])"
+    global Approach= p_rel (CurrentBin,p[x/1000,y/1000,0,0,0,rz])
+    $ 74 "If get_inverse_kin_has_solution(Approach)"
+    if (get_inverse_kin_has_solution(Approach)):
+      $ 75 "MoveJ"
+      $ 76 "Approach" "breakAfter"
+      movej(Approach, a=2.792526803190927, v=2.0943951023931953)
     else:
-      thread_flag_57 = 2
+      $ 77 "Else" "noBreak"
+      $ 78 "Popup: Beyond safety limits"
+      popup("Beyond safety limits", "Error", False, True, blocking=True)
     end
-    $ 60 "Retract≔p_rel_z(get_actual_tcp_pose(), -0.001)"
-    global Retract= p_rel_z ( get_actual_tcp_pose (), -0.001)
-    $ 61 "MoveL"
-    $ 62 "Retract" "breakAfter"
-    movel(Retract, a=0.3, v=0.075)
-    $ 63 "reached_point≔ False "
-    global reached_point=  False
+  end
+  def MoveAndGrasp():
+    $ 79 "MoveAndGrasp" "noBreak"
+    $ 80 "'Robot MUST be moved to approach point before this routine is called'"
+    # 'Robot MUST be moved to approach point before this routine is called'
+    $ 81 "zero_ftsensor()"
+    zero_ftsensor()
+    $ 82 "GraspPoint≔p_rel_z(get_actual_tcp_pose(), 100)"
+    global GraspPoint= p_rel_z ( get_actual_tcp_pose (), 100)
+    $ 83 "MoveL"
+    $ 84 "GraspPoint" "breakAfter"
+    global move_thread_flag_84=0
+    thread move_thread_84():
+      enter_critical
+      move_thread_flag_84 = 1
+      movel(GraspPoint, a=0.6, v=0.05)
+      move_thread_flag_84 = 2
+      exit_critical
+    end
+    move_thread_flag_84 = 0
+    move_thread_han_84 = run move_thread_84()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_84
+        stopl(3.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.001, normalizedPosDir[1] * 0.001, normalizedPosDir[2] * 0.001, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=3.0, v=0.1)
+        $ 85 "Until (tool_contact_detection)"
+        # begin: URCap Program Node
+        #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
+        #   Type: EGI Grip
+        $ 86 "EGI Outside grip"
+        setTargets(32.5,0.5)
+        egiGripWorkPiece(25.0,False,True)
+        # end: URCap Program Node
+        break
+      end
+      sleep(1.0E-10)
+      if (move_thread_flag_84 > 1):
+        join move_thread_han_84
+        break
+      end
+      sync()
+    end
   end
   def MoveToSafety():
-    $ 64 "MoveToSafety" "noBreak"
-    $ 65 "'Moves 10cm upwards'"
+    $ 87 "MoveToSafety" "noBreak"
+    $ 88 "'Moves 10cm upwards'"
     # 'Moves 10cm upwards'
-    $ 66 "Up≔p_rel_z(get_actual_tcp_pose(), -0.10)"
+    $ 89 "Up≔p_rel_z(get_actual_tcp_pose(), -0.10)"
     global Up= p_rel_z ( get_actual_tcp_pose (), -0.10)
-    $ 67 "MoveJ"
-    $ 68 "Up" "breakAfter"
-    movej(Up, a=1.3962634015954636, v=1.0471975511965976)
+    $ 90 "MoveJ"
+    $ 91 "Up" "breakAfter"
+    movej(Up, a=2.792526803190927, v=2.0943951023931953)
   end
   $ 2 "BeforeStart"
   $ 3 "Call URCancelManualMove"
   URCancelManualMove()
-  $ 5 "MoveJ"
-  $ 6 "HomeWP" "breakAfter"
-  movej(get_inverse_kin(HomeWP_p, qnear=HomeWP_q), a=1.3962634015954636, v=1.0471975511965976)
-  while (True):
-    $ 7 "Robot Program"
-    $ 8 "MoveJ"
-    $ 9 "cam_bin1" "breakAfter"
-    movej(cam_bin1, a=1.3962634015954636, v=1.0471975511965976)
-    $ 10 "GripperWidth≔0"
-    global GripperWidth=0
-    $ 11 "Call SetGripperWidth"
-    SetGripperWidth()
-    $ 12 "Call MoveToApproach"
-    MoveToApproach()
-    $ 13 "Call MoveToGrasp"
-    MoveToGrasp()
+  $ 4 "MoveJ"
+  $ 5 "HomeWP" "breakAfter"
+  movej(HomeWP_q, a=2.792526803190927, v=2.0943951023931953)
+  $ 6 "Call InitGripper"
+  InitGripper()
+  $ 7 "Robot Program"
+  # begin: URCap Program Node
+  #   Source: DTI UR Helper, 1.0.3, Danish Technological Institute
+  #   Type: XML-RPC Call
+  $ 8 "XML-RPC Call"
+  $ 9 "number_epochs≔experiment.get_number_epochs()" "noBreak"
+  global number_epochs=experiment. get_number_epochs ()
+  # end: URCap Program Node
+  $ 10 "total_episodes≔0"
+  global total_episodes=0
+  $ 11 "epoch≔0"
+  global epoch=0
+  $ 12 "Loop epoch < number_epochs"
+  while (epoch < number_epochs):
     # begin: URCap Program Node
-    #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
-    #   Type: EGI Grip
-    $ 14 "EGI Outside grip"
-    setTargets(32.5,0.5)
-    egiGripWorkPiece(25.0,False,True)
+    #   Source: DTI UR Helper, 1.0.3, Danish Technological Institute
+    #   Type: XML-RPC Call
+    $ 13 "XML-RPC Call"
+    $ 14 "number_episodes≔experiment.get_number_episodes_in_epoch(epoch)" "noBreak"
+    global number_episodes=experiment. get_number_episodes_in_epoch (epoch)
     # end: URCap Program Node
-    $ 15 "If egiGripped()"
-    if ( egiGripped ()):
-      $ 16 "Call MoveToSafety"
-      MoveToSafety()
-      $ 17 "MoveJ"
-      $ 18 "cam_bin2" "breakAfter"
-      movej(cam_bin2, a=1.3962634015954636, v=1.0471975511965976)
+    $ 15 "episode≔0"
+    global episode=0
+    $ 16 "Loop episode < number_episodes"
+    while (episode < number_episodes):
       # begin: URCap Program Node
-      #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
-      #   Type: EGI Grip
-      $ 19 "EGI Release work piece"
-      setTargets(20.0,0.5)
-      egiReleaseWorkPiece(True)
+      #   Source: DTI UR Helper, 1.0.3, Danish Technological Institute
+      #   Type: XML-RPC Call
+      $ 17 "XML-RPC Call"
+      $ 18 "f≔experiment.get_current_bin_frame()" "noBreak"
+      global f=experiment. get_current_bin_frame ()
       # end: URCap Program Node
-    else:
-      $ 20 "Else" "noBreak"
-      $ 21 "GripperWidth≔1"
-      global GripperWidth=1
-      $ 22 "Call SetGripperWidth"
+      $ 19 "CurrentBin≔p[f[0]/1000, f[1]/1000, f[2]/1000, f[3], f[4], f[5]]"
+      global CurrentBin=p[f[0]/1000, f[1]/1000, f[2]/1000, f[3], f[4], f[5]]
+      $ 20 "CurrentBinCam≔pose_sub(CurrentBin, p[0.190443, 0.205676, -0.164465,0,0,0])"
+      global CurrentBinCam= pose_sub (CurrentBin, p[0.190443, 0.205676, -0.164465,0,0,0])
+      $ 21 "'MoveJ in script line as it enables seeding the numeric inverse kinematics solver'"
+      # 'MoveJ in script line as it enables seeding the numeric inverse kinematics solver'
+      $ 22 "movej(get_inverse_kin(CurrentBinCam, HomeWP_q), a=2.8, v=2.0)"
+      movej(get_inverse_kin(CurrentBinCam, HomeWP_q), a=2.8, v=2.0)
+      # begin: URCap Program Node
+      #   Source: DTI UR Helper, 1.0.3, Danish Technological Institute
+      #   Type: XML-RPC Call
+      $ 23 "XML-RPC Call"
+      $ 24 "action≔experiment.infer(epoch, episode)" "noBreak"
+      global action=experiment. infer (epoch, episode)
+      # end: URCap Program Node
+      $ 25 "textmsg(action)"
+      textmsg(action)
+      $ 26 "x≔action[0]"
+      global x=action[0]
+      $ 27 "y≔action[1]"
+      global y=action[1]
+      $ 28 "rz≔action[2]"
+      global rz=action[2]
+      $ 29 "d≔action[3]"
+      global d=action[3]
+      $ 30 "Call SetGripperWidth"
       SetGripperWidth()
-      $ 23 "MoveJ"
-      $ 24 "cam_bin1" "breakAfter"
-      movej(cam_bin1, a=1.3962634015954636, v=1.0471975511965976)
+      $ 31 "Call MoveToApproach"
+      MoveToApproach()
+      $ 32 "Call MoveAndGrasp"
+      MoveAndGrasp()
+      $ 33 "Call MoveToSafety"
+      MoveToSafety()
+      $ 34 "If egiGripped()"
+      if ( egiGripped ()):
+        $ 35 "'MoveJ in script line as it enables seeding the numeric inverse kinematics solver'"
+        # 'MoveJ in script line as it enables seeding the numeric inverse kinematics solver'
+        $ 36 "'TODO: Change to the other bin.'"
+        # 'TODO: Change to the other bin.'
+        $ 37 "movej(get_inverse_kin(CurrentBinCam, HomeWP_q), a=2.8, v=2.0)"
+        movej(get_inverse_kin(CurrentBinCam, HomeWP_q), a=2.8, v=2.0)
+        # begin: URCap Program Node
+        #   Source: SCHUNK Gripper EGI for UR, 0.1.1, SCHUNK GmbH & Co.
+        #   Type: EGI Grip
+        $ 38 "EGI Release work piece"
+        setTargets(20.0,0.5)
+        egiReleaseWorkPiece(True)
+        # end: URCap Program Node
+      else:
+        $ 39 "Else" "noBreak"
+        $ 40 "d≔1"
+        global d=1
+        $ 41 "Call SetGripperWidth"
+        SetGripperWidth()
+      end
+      $ 42 "episode≔episode + 1"
+      global episode=episode + 1
+      $ 43 "total_episodes≔total_episodes + 1"
+      global total_episodes=total_episodes + 1
     end
+    $ 44 "epoch≔epoch + 1"
+    global epoch=epoch + 1
   end
+  $ 45 "MoveJ"
+  $ 46 "HomeWP" "breakAfter"
+  movej(HomeWP_q, a=2.792526803190927, v=2.0943951023931953)
 end

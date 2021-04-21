@@ -1,0 +1,21 @@
+ Program
+   Robot Program
+     box≔[[0,0],[0,0]]
+     MoveL
+       starting_point
+     Loop 2 times
+       axis≔Loop_1
+       Loop 2 times
+         direction≔Loop_2 % 2
+         If direction
+           delta≔1
+         Else
+           delta≔-1
+         box_border≔p_rel_1D(get_actual_tcp_pose(), delta, axis)
+         MoveL
+           box_border
+             Until (tool_contact_detection)
+               coordinate≔get_actual_tcp_pose()
+               box[axis, direction] = coordinate[axis]
+     XML-RPC Call
+       succes≔calibration.set_box_coordinates(box[0,0], box[0,1], box[1,0], box[1,1])

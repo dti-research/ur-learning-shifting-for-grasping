@@ -1,0 +1,15 @@
+ Program
+   BeforeStart
+     calib_server≔rpc_factory("xmlrpc", "http://192.168.1.119:10000")
+   Robot Program
+     tcp_pose≔get_actual_tcp_pose()
+     board_pose≔calib_server.test_extrinsic_calibration(get_actual_tool_flange_pose())
+     'board_pose≔calib_server.test_extrinsic_calibration()'
+     'init_board_pose≔board_pose'
+     board_pose[3]=tcp_pose[3]
+     board_pose[4]=tcp_pose[4]
+     board_pose[5]=tcp_pose[5]
+     board_pose[2]=board_pose[2]+0.01
+     Popup: Moving to board origin now!
+     MoveL
+       board_pose

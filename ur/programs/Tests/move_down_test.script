@@ -1,0 +1,287 @@
+def move_down_test():
+  set_standard_analog_input_domain(0, 1)
+  set_standard_analog_input_domain(1, 1)
+  set_tool_analog_input_domain(0, 1)
+  set_tool_analog_input_domain(1, 1)
+  set_analog_outputdomain(0, 0)
+  set_analog_outputdomain(1, 0)
+  set_input_actions_to_default()
+  set_tool_communication(False, 115200, 0, 1, 1.5, 3.5)
+  set_tool_output_mode(0)
+  set_tool_digital_output_mode(0, 1)
+  set_tool_digital_output_mode(1, 1)
+  set_tool_voltage(0)
+  set_safety_mode_transition_hardness(1)
+  set_gravity([0.0, 0.0, 9.82])
+  set_tcp(p[0.0,0.0,0.23,0.0,0.0,0.0])
+  set_payload(1.17, [-0.003, 0.002, 0.053])
+  step_count_86a21b6a_c12c_4259_911d_2334b24cec79 = 0.0
+  thread Step_Counter_Thread_f9ea5ccb_31c6_4953_83f8_537fd3e5c218():
+    while (True):
+      step_count_86a21b6a_c12c_4259_911d_2334b24cec79 = step_count_86a21b6a_c12c_4259_911d_2334b24cec79 + 1.0
+      sync()
+    end
+  end
+  run Step_Counter_Thread_f9ea5ccb_31c6_4953_83f8_537fd3e5c218()
+  global above_bin1=p[-0.28482989139219683,-0.6102767166149106,0.14066650553811388,-2.2224820731336505,-2.2166355065979455,-0.0026989556738711133]
+  global above_bin2=p[-0.08480305180860655,-0.6108108869885609,0.14050959661376208,-2.2224686356704177,-2.216659532242512,-0.00278634108800073]
+  global base_plate=p[-0.024014100380523113,-0.8116654278566232,-0.005754309664523227,-0.004671807839145878,5.094047199987354E-4,1.570760575052942]
+  global cam_bin1=p[-0.22453649325532635,-0.6110133233587597,0.19305524180988365,-3.138488979012992,4.538484320374063E-4,9.880545786323813E-4]
+  global cam_bin2=p[-0.024536558404243708,-0.6110527851165684,0.19289370271920656,-3.138371619092444,4.5408998295626746E-4,9.584763864674526E-4]
+  # begin: URCap Installation Node
+  #   Source: DTI UR Library, 0.3.0, Danish Technological Institute
+  #   Type: DTI UR Library
+  ############################################################################
+  # Copyright (C) Danish Technological Institute - All Rights Reserved       #
+  # Unauthorized copying of this file, via any medium is strictly prohibited #
+  # Proprietary and confidential                                             #
+  # Written by Jens-Jakob Bentsen <jebe@dti.dk>, November 2020               #
+  #                                                                          #
+  # Force based moving and force checking                                    #
+  #                                                                          #
+  # Version                                                                  #
+  dti_force_version = 2                                                      #
+  #                                                                          #
+  # dependencies on other DTI script files                                   #
+  # int_dummy = NO_DEPENDENCIES                                              #
+  #                                                                          #
+  ############################################################################
+
+  def get_dti_force_version():
+    return dti_force_version
+  end
+
+  def get_dti_force_deps():
+    # NO DEPS
+    return True
+  end
+
+
+  # like UR's builtin get_tcp_force(), but return the force and torque values transformed
+  # along the axes of the given pose
+  # param pose: any valid pose, defaults to base, the x, y, and z values are ignored
+  # return: 6D force vector with [Fx, Fy, Fz, Mx, My, Mz] aligned to pose in N and Nm respectively
+  def get_tcp_force_in_frame(pose=p[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]):
+
+    # we are only interested in the rotation of pose, set translations to zero
+    local target_pose = pose
+    target_pose[0] = 0
+    target_pose[1] = 0
+    target_pose[2] = 0
+
+    # the conversion needs to happen as poses, so we need to convert back and forth a bit
+    local force = get_tcp_force()
+    local force_vector_as_pose = p[force[0], force[1], force[2], 0, 0, 0]
+    local torque_vector_as_pose = p[force[3], force[4], force[5], 0, 0, 0]
+    local transformed_force_as_pose = pose_trans(pose_inv(target_pose), force_vector_as_pose)
+    local transformed_torque_as_pose = pose_trans(pose_inv(target_pose),torque_vector_as_pose)
+    return [transformed_force_as_pose[0], transformed_force_as_pose[1], transformed_force_as_pose[2], transformed_torque_as_pose[0], transformed_torque_as_pose[1], transformed_torque_as_pose[2]]
+  end
+
+  # get the force or torque values at the TCP along a single axis of the given pose
+  # param axis: number of axis of pose, 0=x, 1=y, ...
+  # param pose:  any valid pose, defaults to base, , the x, y, and z values are ignored
+  # return: force or torque value in N or Nm respectively
+  def get_tcp_force_1d(axis, pose=p[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]):
+    local force_vector = get_tcp_force_in_frame(pose)
+    return force_vector[axis]
+  end
+
+  # perform a linear move while constantly checking the force; the move is aborted
+  # if the force is exceeded and the robot is stopped
+  # note: utilizes the currently active TCP
+  # note: while running, check the value of the "current_force_vector" variable to check your forces in the given reference pose
+  # param p_target: traget pose in base frame
+  # param move_parameters: array [r, a, v] with
+  #                        r: blend radius for linear move in m
+  #                        a: accleration for linear move in m/s^2
+  #                        v: velocity for linear move in m/s
+  # param max_forces: maximum allowed absolute force in N along the reference pose's x, y, and z axis as vector [Fx, Fy, Fz]
+  # param ignore_dists: array of [start_dist, end_dist] ignore the force value within these distances from the
+  #                     start and end point, respectively
+  #                     (gets around high force readings from acceleration / deceleration)
+  # param refrence_pose: measure the allowed forces along the axes of this pose, defaults to the robot's base,
+  #                      x, y, and z values of the pose are ignored
+  # return: True if end of linear move was reached, else False
+  def movel_checkforce(p_target, move_parameters, max_forces, ignore_dists=[0.0, 0.0], reference_pose=p[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]):
+
+    global p_thread_move_target = p_target
+    global thread_move_params = move_parameters
+    global thread_target_reached = False
+    local p_current = get_actual_tcp_pose()  # current pose
+    local p_start = get_actual_tcp_pose()  # start pose of move
+
+    # we use this thread to do the moving
+    thread move_thread():
+      movel(p_thread_move_target, a=thread_move_params[0], v=thread_move_params[1], r=thread_move_params[2])
+      thread_target_reached = True
+      sync()
+      sync()
+    end
+
+    # spin the moving thread and keep track of the force
+    move_thread_handler = run move_thread()
+    while(not thread_target_reached):
+      p_current = get_actual_tcp_pose()
+      global current_force_vector = get_tcp_force_in_frame(reference_pose)
+      if point_dist(p_current, p_start) > ignore_dists[0] and point_dist(p_current, p_target) > ignore_dists[1]:
+        if (norm(current_force_vector[0]) > max_forces[0]) or (norm(current_force_vector[1]) > max_forces[1]) or (norm(current_force_vector[2]) > max_forces[2]):
+          kill move_thread_handler
+          stopl(1)  # TODO: make this value accessible?
+          return False
+        end
+      end
+      sync()
+    end
+    return True
+  end
+
+
+  # Note 1 to self: a target pose in a feature can be converted to the robot's base frame by
+  # using pose_in_base = pose_trans(feature_name, pose_in_feature)
+  # end: URCap Installation Node
+  # begin: URCap Installation Node
+  #   Source: EGH-SCHUNK, 1.0.1, SCHUNK GmbH & Co. KG
+  #   Type: SCHUNK EGH Gripper
+    EGH = rpc_factory("xmlrpc", "http://127.0.0.1:40408/RPC2")
+  global error_updated = False
+  global error_internal = 0
+  def EGH_error():
+          if EGH.getActStatus() != 3:
+              if error_updated == False:
+                  error_internal = EGH.getDetailDeviceStatus(1)
+                  error_updated = True
+              end
+              return error_internal
+          else:
+              error_updated = False
+              error_internal = 0
+              return 0
+          end
+  end
+  def EGH_reference_ok():
+          sync()
+          return EGH.get_Referenced()
+  end
+  def EGH_is_success():
+          sync()
+          return EGH.isSuccess()
+  end
+  def EGH_is_blocked():
+          sync()
+          return EGH.isBlocked()
+  end
+  def EGH_is_endstop():
+          sync()
+          return EGH.isEndStop()
+  end
+  def EGH_is_closed():
+          sync()
+          return EGH.isClosed()
+  end
+  def EGH_is_open():
+          sync()
+          return EGH.isOpen()
+  end
+  def EGH_in_pos():
+          sync()
+          return EGH.isInPosition()
+  end
+  def EGH_actual_pos():
+          sync()
+          return EGH.get_CurrentPosition()
+  end
+  def EGH_status():
+          sync()
+          return EGH.getActStatus()
+  end
+  def EGH_error_check(name):
+      local err =  EGH_status()
+      if (err != 3):
+          local err =  EGH_error()
+          err_msg = EGH.getErrorMsg(err)
+          textmsg(name, err_msg)
+          popup(err_msg, title=name, error=True, blocking=True)
+      end
+      EGH_conn_check(name)
+  end
+  def EGH_conn_check(name):
+      if (not EGH.is_connected()):
+          err_msg = "Gripper disconnected"
+          textmsg(name, err_msg)
+          popup(err_msg, title=name, error=True, blocking=True)
+          halt
+      end
+  end
+  def EGH_goto_pos(value):
+          sync()
+      EGH.cmdPositioning(value)
+  end
+  def EGH_gripped_workpiece(wp):
+      return EGH.isGrippedWp(wp)
+  end
+
+  EGH.resetPrgBreak()
+  Gripper_LB_Enabled = True
+  if (Gripper_LB_Enabled):
+    set_digital_out(0, False)
+    set_digital_out(1, True)
+  end
+  # end: URCap Installation Node
+  def calculate_point_to_move_towards(feature, direction, position_distance):
+    local posDir=[direction[0], direction[1], direction[2]]
+    if (norm(posDir) < 1e-6):
+      return get_target_waypoint()
+    end
+    local direction_vector_normalized=normalize(posDir)
+    local displacement_pose=p[direction_vector_normalized[0] * position_distance,direction_vector_normalized[1] * position_distance,direction_vector_normalized[2] * position_distance,0,0,0]
+    local wanted_displacement_in_base_frame=pose_sub(pose_trans(feature, displacement_pose), feature)
+    return pose_add(get_target_waypoint(), wanted_displacement_in_base_frame)
+  end
+  def MoveDownUntilContact():
+    $ 7 "MoveDownUntilContact" "noBreak"
+    $ 8 "MoveL"
+    $ 9 "Direction: base_plate Z-"
+    global move_thread_flag_9=0
+    thread move_thread_9():
+      enter_critical
+      move_thread_flag_9 = 1
+      local towardsPos=calculate_point_to_move_towards(p[-0.024014100380523113,-0.8116654278566232,-0.005754309664523227,-0.004671807839145878,5.094047199987354E-4,1.570760575052942], [0.0,0.0,-1.0], 1000.0)
+      movel(towardsPos, a=0.3, v=0.05)
+      move_thread_flag_9 = 2
+      exit_critical
+    end
+    move_thread_flag_9 = 0
+    move_thread_han_9 = run move_thread_9()
+    while (True):
+      local targetTcpDirection=get_target_tcp_speed()
+      local stepsToRetract=tool_contact(direction=targetTcpDirection)
+      if (stepsToRetract > 0):
+        kill move_thread_han_9
+        stopl(1.0)
+        local backTrackMovement=get_actual_joint_positions_history(stepsToRetract)
+        local contactPose=get_forward_kin(backTrackMovement)
+        local posDir=[targetTcpDirection[0],targetTcpDirection[1],targetTcpDirection[2]]
+        local retractTo=contactPose
+        if (norm(posDir) > 1e-6):
+          local normalizedPosDir=normalize(posDir)
+          local additionalRetraction=p[normalizedPosDir[0] * 0.005, normalizedPosDir[1] * 0.005, normalizedPosDir[2] * 0.005, 0, 0, 0]
+          retractTo = pose_sub(contactPose, additionalRetraction)
+        end
+        movel(retractTo, a=1.0, v=0.1)
+        $ 10 "Until (tool_contact_detection)"
+        break
+      end
+      sync()
+    end
+  end
+  $ 1 "Robot Program"
+  $ 2 "MoveJ"
+  $ 3 "cam_bin1" "breakAfter"
+  movej(cam_bin1, a=1.3962634015954636, v=1.0471975511965976)
+  $ 4 "MoveJ"
+  $ 5 "above_bin1" "breakAfter"
+  movej(above_bin1, a=1.3962634015954636, v=1.0471975511965976)
+  $ 6 "Call MoveDownUntilContact"
+  MoveDownUntilContact()
+end

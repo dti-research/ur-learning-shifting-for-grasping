@@ -1,0 +1,12 @@
+ Program
+   Robot Program
+     MoveJ
+       Waypoint_1
+     Set
+     board_pose≔p_rel(get_actual_tcp_pose(),p[0.0175,-0.2235,0.42188,0,0,0])
+     board_pose≔p_rel(board_pose,p[0,0,0,3.14,0,0])
+     board_pose[2] = board_pose[2]+0.01
+     'MoveJ'
+     Set
+     MoveL
+       board_pose

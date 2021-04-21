@@ -2,6 +2,7 @@
    BeforeStart
      recorder≔rpc_factory("xmlrpc", "http://192.168.1.119:10000")
    Robot Program
+     'MoveJ'
      Loop 24 times
        Pallet_1
          Patterns
@@ -18,12 +19,15 @@
              MoveL
                ToolActionPoint
              Tool action
+               Wait: 1.0
+               'Popup: before send'
                Call send_pose
              MoveL
                Exit_1
+     'Popup: before send'
+     'Call send_pose'
    send_pose
-     Wait is_steady()
      Wait: 0.5
+     Wait is_steady()
      handle≔recorder.add_sample(get_actual_tool_flange_pose())
-     If handle≟-1
-       Popup: Image acquisition failed. Continue anyway?
+     'glob_tcp_pose≔get_actual_tcp_pose()'

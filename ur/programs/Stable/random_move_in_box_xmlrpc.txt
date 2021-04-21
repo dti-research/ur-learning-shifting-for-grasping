@@ -1,0 +1,83 @@
+ Program
+   Init Variables
+   BeforeStart
+     Call URCancelManualMove
+     MoveJ
+       HomeWP
+     Call InitGripper
+   Robot Program
+     'MoveJ in script line as it enables seeding the numeric inverse kinematics solver'
+     movej(get_inverse_kin(cam_bin1, HomeWP_q))
+     XML-RPC Call
+       result≔train.get_grasp_pose()
+     x≔result[0]
+     y≔result[1]
+     rz≔result[2]
+     d≔result[3]
+     Call SetGripperWidth
+     Call MoveToApproach
+     Call MoveAndGrasp
+     Call MoveToSafety
+     If egiGripped()
+       'MoveJ in script line as it enables seeding the numeric inverse kinematics solver'
+       movej(get_inverse_kin(cam_bin2, HomeWP_q))
+       EGI Release work piece
+     Else
+       d≔1
+       Call SetGripperWidth
+     'Call MoveToSafety'
+   URCancelManualMove
+     here≔get_actual_tcp_pose()
+     MoveJ
+       here
+   InitGripper
+     EGI Stop
+     EGI Acknowledge error
+     EGI Reference
+     EGI Position
+     EGI Position
+   SetGripperWidth
+     If d≟-1
+       '0 mm'
+       EGI Position
+     ElseIf d≟0
+       '40 mm'
+       EGI Position
+     ElseIf d≟1
+       '70 mm'
+       EGI Position
+     ElseIf d≟2
+       '86 mm'
+       EGI Position
+     Else
+       Popup: Gripper width could not be determined (from: SetGripperWidth())
+   MoveToApproach
+     'bin_size≔[365, 265]'
+     'dist_from_wall≔50'
+     'rand_x≔random()'
+     'rand_y≔random()'
+     'rand_rz≔random()'
+     'x≔rand_x*bin_size[0]'
+     'y≔rand_y*bin_size[1]'
+     'If x<(bin_size[0]/2)'
+     'If y<(bin_size[1]/2)'
+     'rz≔rand_rz*3.147'
+     Approach≔p_rel(Bin1,p[x/1000,y/1000,0,0,0,rz])
+     If get_inverse_kin_has_solution(Approach)
+       MoveJ
+         Approach
+     Else
+       Popup: Beyond safety limits
+   MoveAndGrasp
+     'Robot MUST be moved to approach point before this routine is called'
+     zero_ftsensor()
+     GraspPoint≔p_rel_z(get_actual_tcp_pose(), 100)
+     MoveL
+       GraspPoint
+         Until (tool_contact_detection)
+           EGI Outside grip
+   MoveToSafety
+     'Moves 10cm upwards'
+     Up≔p_rel_z(get_actual_tcp_pose(), -0.10)
+     MoveJ
+       Up
