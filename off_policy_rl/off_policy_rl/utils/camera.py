@@ -26,7 +26,7 @@ import imageio
 import numpy as np
 import pyrealsense2.pyrealsense2 as rs
 
-from utils.types import RectificationFunctionT
+from off_policy_rl.utils.types import RectificationFunctionT
 
 #import utils
 

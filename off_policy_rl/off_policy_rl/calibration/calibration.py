@@ -9,7 +9,11 @@
 
 class Calibration():
     def __init__(self):
-        self.test = 1
+        self.coordinates = []
 
     def set_box_coordinates(self, coordinates):
+        self.coordinates = coordinates
         print(coordinates)
+
+    def get_box_coordinates(self):
+        return self.coordinates

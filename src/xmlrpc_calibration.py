@@ -6,7 +6,7 @@
 #
 # Author: Nicolai Anton Lynnerup <nily@dti.dk>
 
-from calibration.calibration import Calibration
+from off_policy_rl.calibration.calibration import Calibration
 
 import sys
 import argparse
@@ -34,13 +34,33 @@ class CalibrationProxy():
         allowing for easy conversion between protocols.
     """
     def __init__(self):
-        # Create instance of main train class
+        # Create instance of main calibration class
         self.calibration = Calibration()
 
-    def set_box_coordinates(self, x_low, x_high, y_low, y_high):
+    def set_box_coordinates(self, x_low: float,
+                                  x_high: float,
+                                  y_low: float,
+                                  y_high: float):
+        """Save the calibrated coordinates of the box in the scene.
+
+        Args:
+            x_low (float): lower x bound
+            x_high (float): higher x bound
+            y_low (float): lower y bound
+            y_high (float): higher y bound
+        """
         coordinates = [x_low, x_high, y_low, y_high]
-        print(coordinates)
         self.calibration.set_box_coordinates(coordinates)
+
+    def get_box_coordinates(self):
+        """Returns the stored box coordinates
+
+        Returns:
+            list: The four coordinate values {x_low, x_high, y_low, y_high}
+        """
+
+        coordinates = self.calibration.get_box_coordinates()
+        return coordinates[0], coordinates[1], coordinates[2], coordinates[3]
 
     # TODO: Add methods to make the needed data conversions and function calls
 
