@@ -5,7 +5,7 @@ repos:
   - id: trailing-whitespace
     exclude: ^ur/ ^cad-models/
   - id: end-of-file-fixer
-    exclude: 'setup.cfg' # because of https://github.com/c4urself/bump2version/issues/58
+    exclude: ^ur/ 'setup.cfg' # because of https://github.com/c4urself/bump2version/issues/58
   - id: check-json
   - id: check-xml
   - id: check-yaml
