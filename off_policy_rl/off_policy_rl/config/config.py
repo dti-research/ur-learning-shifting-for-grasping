@@ -8,19 +8,21 @@ from off_policy_rl.utils.types import Pose
 class Config:
     Epochs = [
         Epoch(
-            number_episodes=200,
+            number_episodes=5000,
             selection_methods=[SelectionMethod.Random]
-        ),
-        Epoch(
-            number_episodes=10,
-            selection_methods=[SelectionMethod.Random, SelectionMethod.Top5],
-            probabilities=[0.99, 0.01]
-        )
+        )#,
+        #Epoch(
+        #    number_episodes=10,
+        #    selection_methods=[SelectionMethod.Random, SelectionMethod.Top5],
+        #    probabilities=[0.99, 0.01]
+        #)
     ]
 
     # Frames in robot's base frame
+    # NB! When the frames are sent to the robot they are converted from mm to m
     Bins = [
         Bin(
+            id=0,
             size=[365,265],
             frame=Pose(
                 x  =  306.09,  # mm
@@ -32,6 +34,7 @@ class Config:
             )
         ),
         Bin(
+            id=1,
             size=[365,265],
             frame=Pose(
                 x  =  -96.84,  # mm
@@ -44,7 +47,9 @@ class Config:
         )
     ]
 
-    current_bin = 1
+    start_bin = 0
+    change_bin_at_number_of_failed_grasps = 12  # default=10-15
+
 
     data_folder = "../data"
     model_folder = os.path.join(data_folder, "models")
