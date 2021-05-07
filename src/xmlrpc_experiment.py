@@ -10,12 +10,13 @@
 
 #from off_policy_rl.experiment.experiment import Experiment
 from off_policy_rl.rl.experiment import Experiment
+from off_policy_rl.utils.types import Pose
 
 import sys
 import math
 import argparse
 
-from typing import List
+from typing import List, Dict
 
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
@@ -40,9 +41,34 @@ class ExperimentProxy():
         This is made so the train class is separated from the XML-RPC specifics
         allowing for easy conversion between protocols.
     """
+
     def __init__(self):
         # Create instance of main train class
         self.experiment = Experiment()
+
+    def list_to_pose(self, l):
+        """Internal function to convert a Python list to a UR pose
+
+        Args:
+            l (list): the pose as a list
+
+        Returns:
+            dict: the pose as a dict
+        """
+        assert type(l) is list
+        return {'x' : l[0], 'y' : l[1], 'z' : l[2], 'rx' : l[3], 'ry' : l[4], 'rz' : l[5]}
+
+    def pose_to_list(self, p):
+        """Internal function to convert a UR pose to a Python list
+
+        Args:
+            p (dict): the pose as a dict
+
+        Returns:
+            list: the pose as a list
+        """
+        assert type(p) is dict
+        return [p['x'], p['y'], p['z'], p['rx'], p['ry'], p['rz']]
 
     def get_number_epochs(self) -> int:
         """Returns the number of epochs specified in the Experiment Config
@@ -63,16 +89,61 @@ class ExperimentProxy():
         """
         return self.experiment.get_number_episodes_in_epoch(epoch_index)
 
-    def get_current_bin_frame(self) -> List[float]:
-        frame = self.experiment.get_current_bin_frame()
-        return [frame.x,
-                frame.y,
-                frame.z,
-                frame.rx,
-                frame.ry,
-                frame.rz]
+    def get_pick_bin_frame(self) -> Dict[str, float]:
+        """Returns the UR pose of the current picking frame
 
-    def infer(self, epoch: int, episode: int):
+        Returns:
+            pose: The pick bin UR pose
+        """
+        pose = self.experiment.get_pick_bin_frame()
+        return self.list_to_pose(
+            [pose.x / 1000, # [mm] to [m]
+             pose.y / 1000, # [mm] to [m]
+             pose.z / 1000, # [mm] to [m]
+             pose.rx,
+             pose.ry,
+             pose.rz]
+        )
+
+    def get_drop_bin_frame(self) -> Dict[str, float]:
+        """Returns the UR pose of the current dropping frame
+
+        Returns:
+            pose: The drop bin UR pose
+        """
+        pose = self.experiment.get_drop_bin_frame()
+        return self.list_to_pose(
+            [pose.x / 1000, # [mm] to [m]
+             pose.y / 1000, # [mm] to [m]
+             pose.z / 1000, # [mm] to [m]
+             pose.rx,
+             pose.ry,
+             pose.rz]
+        )
+
+
+    def get_random_drop_pose(self) -> Dict[str, float]:
+        """Returns a random pose (to be used relative to the bin)
+
+        Returns:
+            pose: The pick bin UR pose
+        """
+        pose = self.experiment.get_random_drop_pose()
+        return self.list_to_pose(
+            [pose.x / 1000, # [mm] to [m]
+             pose.y / 1000, # [mm] to [m]
+             pose.z / 1000, # [mm] to [m]
+             pose.rx,
+             pose.ry,
+             pose.rz]
+        )
+
+    def start_new_experiment(self) -> None:
+        """Initiates a new experiment including new trial folder
+        """
+        self.experiment.start_new_experiment()
+
+    def infer(self, epoch: int, episode: int) -> None:
         """Makes inference in the current state.
         It is important that the robot is positioned at the camera WP and
         is steady.
@@ -82,10 +153,10 @@ class ExperimentProxy():
             episode (int): index of current episode
 
         Returns:
-            list: x      [float]
-                  y      [float]
-                  rz     [float]
-                  d      [int]
+            list: x      [float] m
+                  y      [float] m
+                  rz     [float] rad
+                  d      [int]   index
                   bin.pose.x [float] mm
                   bin.pose.y [float] mm
                   bin.pose.z [float] mm
@@ -94,16 +165,26 @@ class ExperimentProxy():
                   bin.pose.rz [float] rad
         """
         action = self.experiment.infer(epoch, episode)
-        return [action.pose.x,
-               action.pose.y,
-               action.pose.rz,
-               action.pose.d,
-               action.bin.frame.x,
-               action.bin.frame.y,
-               action.bin.frame.z,
-               action.bin.frame.rx,
-               action.bin.frame.ry,
-               action.bin.frame.rz]
+        return [action.pose.x / 1000, # [mm] to [m]
+                action.pose.y / 1000, # [mm] to [m]
+                action.pose.rz,
+                action.pose.d#,
+                #self.list_to_pose([
+                #    action.bin.frame.x,
+                #    action.bin.frame.y,
+                #    action.bin.frame.z,
+                #    action.bin.frame.rx,
+                #    action.bin.frame.ry,
+                #    action.bin.frame.rz])
+                ]
+
+    def end_episode(self, reward: float) -> None:
+        """Ends the current episode and saves it to disk
+
+        Args:
+            reward (float): the reward given for the effectuated action
+        """
+        self.experiment.end_episode(reward)
 
 
 # Create XML-RPC server
