@@ -22,7 +22,6 @@ import json
 import logging
 from typing import Optional, Tuple
 
-import imageio
 import numpy as np
 import pyrealsense2.pyrealsense2 as rs
 

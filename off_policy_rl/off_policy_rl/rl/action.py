@@ -23,4 +23,3 @@ class Action:
         self.pose = pose
         self.method = method
         self.image = image
-        self.estimated_reward = None
