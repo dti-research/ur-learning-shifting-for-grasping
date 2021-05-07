@@ -18,6 +18,7 @@ from off_policy_rl.rl.environment import Environment
 from off_policy_rl.utils.types import ActionPose, Pose
 from off_policy_rl.utils.camera import IntelRealSense
 from off_policy_rl.utils.epoch import Epoch
+from off_policy_rl.utils.episode import Episode, EpisodeHistory
 from off_policy_rl.utils.loader import Loader
 from off_policy_rl.utils.selection_method import SelectionMethod
 from off_policy_rl.utils.saver import Saver
@@ -51,20 +52,29 @@ class Experiment():
                  verbose = True):
         self.camera = IntelRealSense()
         self.verbose = verbose
+
+    def start_new_experiment(self):
         self.environment = Environment(Config.Bins)
         self.saver = Saver(Config.data_folder)
-        #self.model: Model = Loader.get_model("")
-        # history =
+        self.history = EpisodeHistory()
+        self.current_episode = Episode(0,0)
 
     def infer(self, epoch: int, episode: int) -> Action:
         if self.verbose:
             start = time.time()
 
+        # Create episode object to hold action(s), reward(s), etc.
+        self.current_episode = Episode(epoch, episode)
+
+        # Get implicit policy selection method given the epoch index
         method = self.get_selection_method(epoch)
+
+        # TODO: Get pick and place bins.
         bin_coordinates = Config.get_bin_coordinates(clearance=50.0) # mm
 
-        rgd, depth = self.camera.get_rectified_rgb_image_and_depth()
-        input_images = rgd, depth #self.get_images(frame)
+        # Take image
+        rgb, depth = self.camera.get_rectified_rgb_image_and_depth()
+        input_images = rgb, depth #self.get_images(frame)
 
         if method == SelectionMethod.Random:
             pose = ActionPose(
@@ -76,11 +86,13 @@ class Experiment():
 
             action = Action(
                 action=ActionType.Grasp,
-                bin=self.environment.get_current_bin(),
+                bin=self.environment.get_pick_bin(),
                 pose=pose,
                 method=method,
                 image=input_images,
             )
+
+            self.current_episode.set_action(action)
 
             return action
 
@@ -109,6 +121,24 @@ class Experiment():
 
         raise Exception(f'Selection method not implemented: {method}')
 
+    def end_episode(self, reward) -> None:
+        """Ends the current episode, sets the reward and saves the episode data
+
+        Args:
+            reward (float): the reward for the effectuated action
+        """
+        self.current_episode.set_reward(reward)
+        self.history.append(self.current_episode)
+
+        if self.verbose:
+            logging.info("Saving current episode")
+        self.saver.save_episode(self.current_episode)
+
+        # Switch bins?
+        if self.history.failed_grasps_since_last_success_in_bin(self.environment.get_pick_bin()) >= Config.change_bin_at_number_of_failed_grasps:
+            if self.verbose:
+                logging.info("Switching to the other bin")
+            self.environment.switch_bins()
 
     def get_number_epochs(self) -> int:
         return len(Config.Epochs)
@@ -119,8 +149,22 @@ class Experiment():
     def get_selection_method(self, epoch_index: int) -> SelectionMethod:
         return Config.Epochs[epoch_index].get_selection_method()
 
-    def get_current_bin_frame(self) -> List[float]:
-        return self.environment.get_current_bin().frame
+    def get_pick_bin_frame(self) -> List[float]:
+        return self.environment.get_pick_bin().frame
+
+    def get_drop_bin_frame(self) -> List[float]:
+        return self.environment.get_drop_bin().frame
+
+    def get_random_drop_pose(self) -> Pose:
+        bin_coordinates = Config.get_bin_coordinates(clearance=50.0) # mm
+
+        return Pose(x=np.random.uniform(bin_coordinates[0], bin_coordinates[1]),
+                    y=np.random.uniform(bin_coordinates[2], bin_coordinates[3]),
+                    z=-200.0,
+                    rx=0.0,
+                    ry=0.0,
+                    rz=np.random.choice(np.arange(0, np.pi, np.pi/20)).item())
+
 
     def get_images(self, frames: rs.frame) -> List:
         image = frames.get_color_frame()
